@@ -9,3 +9,6 @@ dotnet ef migrations add InitialCreate -o Data/Migrations
 docker run --name vet-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=admin -p 5432:5432 -d postgres
 dotnet ef database update
 dotnet ef migrations add AddBusinessEntities
+dotnet user-secrets init
+
+# Using user-secrets (windows feature) to prevent uploading hard-coded admin credentials
