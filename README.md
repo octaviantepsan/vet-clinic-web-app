@@ -11,5 +11,10 @@ dotnet ef database update
 dotnet ef migrations add AddBusinessEntities
 dotnet ef migrations add SyncAppointments
 
+# Modifying the way registering is done (not just email, password)
+dotnet tool install -g dotnet-aspnet-codegenerator
+dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+dotnet aspnet-codegenerator identity -dc VetClinic.Data.ApplicationDbContext --files "Account.Register"
+
 # Using user-secrets (windows feature) to prevent uploading hard-coded admin credentials
 dotnet user-secrets init

@@ -1,0 +1,37 @@
+@model VetClinic.Models.Appointment
+
+@{
+    ViewData["Title"] = "Reschedule Appointment";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0"><i class="bi bi-calendar-range"></i> Propose New Date</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead">
+                You are moving the appointment for <strong>@Model.Pet?.Name</strong>.
+            </p>
+            <p class="text-muted">
+                Current Date: <strong>@Model.DateTime.ToString("f")</strong> <br/>
+                Doctor: <strong>Dr. @(Model.Doctor?.ApplicationUser?.FullName ?? "Any")</strong>
+            </p>
+
+            <form asp-action="Reschedule" method="post">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="form-group mb-4">
+                    <label class="form-label fw-bold">Select New Date & Time</label>
+                    <input type="datetime-local" name="newDate" class="form-control form-control-lg" 
+                           value="@Model.DateTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-warning fw-bold">Send Proposal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

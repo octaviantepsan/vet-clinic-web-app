@@ -5,63 +5,137 @@
 }
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between mb-4">
-        <h2>My Appointments</h2>
-        <a asp-action="Create" class="btn btn-primary">Book New</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>📅 My Appointments</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Book New Appointment
+        </a>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Pet</th>
-                <th>Doctor</th>
-                <th>Reason</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            You haven't booked any appointments yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle shadow-sm rounded overflow-hidden">
+            <thead class="table-dark">
                 <tr>
-                    <td>@item.DateTime.ToString("f")</td>
-
-                    <td>@(item.Pet?.Name ?? "Unknown Pet")</td>
-
-                    <td>Dr. @(item.Doctor?.ApplicationUser?.FullName ?? "Unknown Doctor")</td>
-
-                    <td>
-                        @if(!string.IsNullOrEmpty(item.Description))
-                        {
-                            @item.Description
-                        }
-                        else 
-                        {
-                            <span class="text-muted">No description</span>
-                        }
-                    </td>
-
-                    <td>
-                        @if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
-                        {
-                            <span class="badge bg-warning text-dark">Pending</span>
-                        }
-                        // Fix: Changed 'Confirmed' to 'Accepted' to match your Model
-                        else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
-                        {
-                            <span class="badge bg-success">Accepted</span>
-                        }
-                        else if (item.Status == VetClinic.Models.AppointmentStatus.Refused)
-                        {
-                            <span class="badge bg-danger">Refused</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">@item.Status</span>
-                        }
-                    </td>
+                    <th>Date & Time</th>
+                    <th>Pet</th>
+                    <th>Doctor</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    // Visual Logic: Highlight rows based on status
+                    string rowClass = "";
+                    if (item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed)
+                    {
+                        rowClass = "table-warning border-start border-5 border-warning"; // Yellow Highlight
+                    }
+                    else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                    {
+                        rowClass = "table-success"; // Green Highlight
+                    }
+
+                    <tr class="@rowClass">
+                        
+                        <td>
+                            @if (item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed)
+                            {
+                                <strong class="text-danger">
+                                    <i class="bi bi-exclamation-circle-fill"></i> New:
+                                </strong><br />
+                                <strong>@item.DateTime.ToString("MMM dd")</strong>
+                                <span class="text-dark">@item.DateTime.ToString("HH:mm")</span>
+                            }
+                            else
+                            {
+                                <strong>@item.DateTime.ToString("MMM dd")</strong> <br />
+                                <span class="text-muted">@item.DateTime.ToString("HH:mm")</span>
+                            }
+                        </td>
+
+                        <td>
+                            <strong>@(item.Pet?.Name ?? "Unknown")</strong> <br />
+                            <small class="text-muted">@(item.Pet?.Species ?? "-")</small>
+                        </td>
+
+                        <td>
+                            Dr. @(item.Doctor?.ApplicationUser?.LastName ?? "Any")
+                        </td>
+
+                        <td>
+                            <span class="d-inline-block text-truncate" style="max-width: 150px;" title="@item.Description">
+                                @(item.Description ?? "-")
+                            </span>
+                        </td>
+
+                        <td>
+                            @if (item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed)
+                            {
+                                <span class="badge bg-warning text-dark animate__animated animate__pulse animate__infinite">Action Required</span>
+                            }
+                            else if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                            {
+                                <span class="badge bg-secondary">Pending</span>
+                            }
+                            else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                            {
+                                <span class="badge bg-success">Confirmed</span>
+                            }
+                            else if (item.Status == VetClinic.Models.AppointmentStatus.Refused)
+                            {
+                                <span class="badge bg-danger">Refused</span>
+                            }
+                            else if (item.Status == VetClinic.Models.AppointmentStatus.Completed)
+                            {
+                                <span class="badge bg-primary">Completed</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed)
+                            {
+                                <div class="d-flex flex-column gap-1">
+                                    <form asp-action="ConfirmReschedule" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="accept" value="true" />
+                                        <button type="submit" class="btn btn-success btn-sm w-100" title="Accept new time">
+                                            <i class="bi bi-check-lg"></i> Confirm
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="ConfirmReschedule" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="accept" value="false" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Reject and Cancel">
+                                            <i class="bi bi-x-lg"></i> Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            // SCENARIO B: Normal Pending (Client can cancel if they changed their mind)
+                            else if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                            {
+                                <span class="text-muted small">Waiting...</span>
+                            }
+                            // SCENARIO C: Everything else
+                            else
+                            {
+                                <span class="text-muted small">-</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>

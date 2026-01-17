@@ -90,5 +90,36 @@ namespace VetClinic.Controllers
 
             return View(appointment);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmReschedule(int id, bool accept)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Pet)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            // Security Check: Ensure the logged-in user owns this pet
+            var userId = _userManager.GetUserId(User);
+            if (appointment == null || appointment.Pet?.OwnerId != userId)
+            {
+                return NotFound();
+            }
+
+            if (accept)
+            {
+                appointment.Status = AppointmentStatus.Accepted;
+                TempData["AlertMessage"] = "Appointment updated and confirmed!";
+            }
+            else
+            {
+                // If rejected, we mark it as Refused (Closed) so they can book a fresh one
+                appointment.Status = AppointmentStatus.Refused;
+                TempData["AlertMessage"] = "Appointment cancelled. Please book a new time that suits you.";
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

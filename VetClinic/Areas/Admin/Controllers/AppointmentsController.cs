@@ -52,5 +52,36 @@ namespace VetClinic.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: Admin/Appointments/Reschedule/5
+        [HttpGet]
+        public async Task<IActionResult> Reschedule(int id)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Pet)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (appointment == null) return NotFound();
+
+            return View(appointment);
+        }
+
+        // POST: Admin/Appointments/Reschedule/5
+        [HttpPost]
+        public async Task<IActionResult> Reschedule(int id, DateTime newDate)
+        {
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null) return NotFound();
+
+            // Update logic
+            appointment.DateTime = newDate; // Set the new time
+            appointment.Status = AppointmentStatus.RescheduleProposed; // Change status
+
+            await _context.SaveChangesAsync();
+
+            TempData["AlertMessage"] = "New date proposed. Waiting for client confirmation.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
