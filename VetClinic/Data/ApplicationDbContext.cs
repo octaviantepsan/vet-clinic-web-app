@@ -17,6 +17,8 @@ namespace VetClinic.Data
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Pet> Pets { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        // Inside ApplicationDbContext class
         public DbSet<Consultation> Consultations { get; set; }
+        public DbSet<Bill> Bills { get; set; }
     }
 }

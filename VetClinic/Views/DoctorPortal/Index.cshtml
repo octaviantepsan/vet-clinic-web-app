@@ -23,34 +23,38 @@
             @foreach (var item in Model)
             {
                 <div class="col-md-12 mb-3">
-                    <div class="card shadow-sm @(item.Status == VetClinic.Models.AppointmentStatus.Accepted ? "border-success" : "")">
+                    <div
+                        class="card shadow-sm @(item.Status == VetClinic.Models.AppointmentStatus.Accepted ? "border-success" : "")">
                         <div class="card-body d-flex justify-content-between align-items-center">
-                            
+
                             <div>
                                 <h4 class="mb-1">
                                     <i class="bi bi-clock"></i> @item.DateTime.ToString("HH:mm")
                                     <small class="text-muted fs-6 ms-2">@item.DateTime.ToString("MMM dd")</small>
                                 </h4>
                                 <h5 class="text-primary mb-0">
-                                    Patient: @(item.Pet?.Name ?? "Unknown") 
+                                    Patient: @(item.Pet?.Name ?? "Unknown")
                                     <span class="badge bg-light text-dark border">@item.Pet?.Species</span>
                                 </h5>
                                 <small class="text-muted">Owner: @(item.Pet?.Owner?.FirstName ?? "Client")</small>
                             </div>
 
                             <div class="flex-grow-1 mx-4 px-4 border-start border-end">
-                                <strong>Reason for visit:</strong> <br/>
+                                <strong>Reason for visit:</strong> <br />
                                 <span class="fst-italic">"@item.Description"</span>
                             </div>
 
                             <div class="text-end" style="min-width: 120px;">
-                                @if(item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                                @if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
                                 {
-                                    <span class="badge bg-success fs-6">Confirmed</span>
+                                    <a asp-action="CreateConsultation" asp-route-appointmentId="@item.Id"
+                                        class="btn btn-primary btn-sm mt-2">
+                                        <i class="bi bi-clipboard-pulse"></i> Start Consultation
+                                    </a>
                                 }
-                                else if(item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                                else if (item.Status == VetClinic.Models.AppointmentStatus.Completed)
                                 {
-                                    <span class="badge bg-warning text-dark fs-6">Pending Approval</span>
+                                    <button class="btn btn-secondary btn-sm mt-2" disabled>Completed</button>
                                 }
                                 else
                                 {

@@ -1,0 +1,58 @@
+@model VetClinic.Models.Consultation
+
+@{
+    ViewData["Title"] = "Medical Record";
+    var appt = ViewBag.Appointment as VetClinic.Models.Appointment;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4>🩺 Medical Consultation</h4>
+            <span class="opacity-75">Patient: @appt?.Pet?.Name (@appt?.Pet?.Species)</span>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateConsultation" method="post">
+                <input type="hidden" asp-for="AppointmentId" />
+
+                <h5 class="text-primary mb-3">Medical Findings</h5>
+                <div class="form-floating mb-3">
+                    <input asp-for="Diagnosis" class="form-control" placeholder="Diagnosis" required />
+                    <label asp-for="Diagnosis">Diagnosis (Required)</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <textarea asp-for="Treatment" class="form-control" style="height: 100px"
+                        placeholder="Treatment"></textarea>
+                    <label asp-for="Treatment">Treatment / Prescriptions</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <textarea asp-for="Notes" class="form-control" style="height: 80px"
+                        placeholder="Private Notes"></textarea>
+                    <label asp-for="Notes">Private Doctor Notes</label>
+                </div>
+
+                <hr />
+
+                <h5 class="text-success mb-3">Billing Info</h5>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="ServiceCost" type="number" step="0.01" min="0" class="form-control" id="costInput"
+                        placeholder="0.00" required />
+                    <label for="costInput">Total Cost ($)</label>
+                    <span asp-validation-for="ServiceCost" class="text-danger"></span>
+                </div>
+
+                <div class="alert alert-light border border-secondary text-muted small mb-4">
+                    <i class="bi bi-info-circle"></i> Entering this amount will automatically generate an invoice for
+                    the client.
+                </div>
+
+                <button type="submit" class="btn btn-lg btn-success w-100">
+                    <i class="bi bi-save"></i> Finish Consultation & Create Bill
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

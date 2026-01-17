@@ -5,22 +5,25 @@ namespace VetClinic.Models
 {
     public class Consultation
     {
-        [Key]
         public int Id { get; set; }
 
-        [Required]
-        public required string Diagnosis { get; set; } // Fixed: Must be provided
-
-        public string? Treatment { get; set; } // Fixed: Made optional (maybe just a checkup?)
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Cost { get; set; }
-
-        // One-to-One relationship with Appointment
-        [Required]
+        // Link to the Appointment (One-to-One)
         public int AppointmentId { get; set; }
+        public Appointment? Appointment { get; set; }
+
+        // Medical Info (Doctor fills this)
+        [Required]
+        public string Diagnosis { get; set; } = string.Empty;
         
-        [ForeignKey("AppointmentId")]
-        public Appointment? Appointment { get; set; } // Fixed: Nullable to avoid constructor errors
+        public string? Treatment { get; set; } // Meds, surgery details
+        
+        public string? Notes { get; set; } // Private doctor notes
+
+        // Financial Info (Doctor enters cost, system creates bill)
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ServiceCost { get; set; }
+
+        // Link to the Bill (Automatically created)
+        public Bill? Bill { get; set; }
     }
 }

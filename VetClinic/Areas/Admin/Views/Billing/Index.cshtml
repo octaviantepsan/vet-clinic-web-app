@@ -1,0 +1,88 @@
+@model IEnumerable<VetClinic.Models.Bill>
+
+@{
+    ViewData["Title"] = "Billing Management";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Force the main layout
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>💰 Invoices & Billing</h2>
+        <div>
+            </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Owner</th>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Consultation?.Appointment?.DateTime.ToString("MMM dd")</strong> <br/>
+                                <small class="text-muted">@item.Consultation?.Appointment?.DateTime.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                <strong>@(item.Consultation?.Appointment?.Pet?.Name ?? "Unknown")</strong>
+                            </td>
+                            <td>
+                                @(item.Consultation?.Appointment?.Pet?.Owner?.FirstName ?? "Unknown") <br/>
+                                <small class="text-muted">@(item.Consultation?.Appointment?.Pet?.Owner?.PhoneNumber ?? "-")</small>
+                            </td>
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 150px;">
+                                    @(item.Consultation?.Diagnosis ?? "Consultation")
+                                </span>
+                            </td>
+                            <td>
+                                <h5 class="mb-0 text-dark">$@item.TotalAmount</h5>
+                            </td>
+                            <td>
+                                @if (item.IsPaid)
+                                {
+                                    <span class="badge bg-success rounded-pill">
+                                        <i class="bi bi-check-circle-fill"></i> Paid
+                                    </span>
+                                    <div class="small text-muted mt-1">@item.PaymentDate?.ToString("d")</div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger rounded-pill">Unpaid</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a asp-action="Print" asp-route-id="@item.Id" target="_blank" class="btn btn-outline-secondary btn-sm" title="Print Invoice">
+                                        <i class="bi bi-printer"></i> Print
+                                    </a>
+
+                                    @if (!item.IsPaid)
+                                    {
+                                        <form asp-action="MarkPaid" method="post" onsubmit="return confirm('Confirm payment received?');">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm ms-1" title="Mark as Paid">
+                                                <i class="bi bi-cash-coin"></i> Pay
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

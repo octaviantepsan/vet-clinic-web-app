@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/VetClinic.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
 <body>
@@ -37,6 +37,9 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" asp-area="Admin" asp-controller="Appointments"
                                             asp-action="Index">Manage Appointments</a></li>
+
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Billing"
+                                            asp-action="Index">Invoices & Billing</a></li>
                                 </ul>
                             </li>
                         }
@@ -50,7 +53,8 @@
                             </li>
                         }
 
-                        @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin") && !User.IsInRole("Doctor"))
+                        @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin") &&
+                                                !User.IsInRole("Doctor"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Appointments" asp-action="Index">My
