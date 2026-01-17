@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using VetClinic.Data;
 using VetClinic.Models;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

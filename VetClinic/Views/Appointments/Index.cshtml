@@ -1,0 +1,67 @@
+@model IEnumerable<VetClinic.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4">
+        <h2>My Appointments</h2>
+        <a asp-action="Create" class="btn btn-primary">Book New</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Pet</th>
+                <th>Doctor</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.DateTime.ToString("f")</td>
+
+                    <td>@(item.Pet?.Name ?? "Unknown Pet")</td>
+
+                    <td>Dr. @(item.Doctor?.ApplicationUser?.FullName ?? "Unknown Doctor")</td>
+
+                    <td>
+                        @if(!string.IsNullOrEmpty(item.Description))
+                        {
+                            @item.Description
+                        }
+                        else 
+                        {
+                            <span class="text-muted">No description</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        // Fix: Changed 'Confirmed' to 'Accepted' to match your Model
+                        else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                        {
+                            <span class="badge bg-success">Accepted</span>
+                        }
+                        else if (item.Status == VetClinic.Models.AppointmentStatus.Refused)
+                        {
+                            <span class="badge bg-danger">Refused</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

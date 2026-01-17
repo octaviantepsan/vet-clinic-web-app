@@ -1,0 +1,102 @@
+@model IEnumerable<VetClinic.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Manage Appointments";
+}
+
+<div class="container mt-5">
+    <h2>Appointment Requests</h2>
+    <hr />
+
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Date & Time</th>
+                <th>Patient (Client)</th>
+                <th>Doctor</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                string rowClass = "";
+                // Visual Logic: Yellow for Pending, Green tint for Accepted
+                if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                {
+                    rowClass = "table-warning";
+                }
+                else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                {
+                    rowClass = "table-success"; // Light green
+                }
+
+                <tr class="@rowClass">
+                    <td>
+                        <strong>@item.DateTime.ToString("MMM dd")</strong> <br />
+                        @item.DateTime.ToString("HH:mm")
+                    </td>
+                    <td>
+                        <strong>@(item.Pet?.Name ?? "Unknown")</strong> <br />
+                        <span class="text-muted small">Owner: @(item.Pet?.Owner?.Email ?? "Unknown")</span>
+                    </td>
+                    <td>Dr. @(item.Doctor?.ApplicationUser?.FullName ?? "Any")</td>
+                    <td>@(item.Description ?? "-")</td>
+                    <td><span class="badge bg-secondary">@item.Status</span></td>
+
+                    <td>
+                        @if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
+                        {
+                            <div class="btn-group">
+                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="status" value="1" /> <button type="submit"
+                                        class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form asp-action="UpdateStatus" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="status" value="2" /> <button type="submit"
+                                        class="btn btn-danger btn-sm">Refuse</button>
+                                </form>
+                            </div>
+                        }
+
+                        else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
+                        {
+                            <div class="d-flex gap-2">
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="status" value="3" /> <button type="submit"
+                                        class="btn btn-primary btn-sm" title="Mark visit as finished">
+                                        <i class="bi bi-check-all"></i> Mark Completed
+                                    </button>
+                                </form>
+
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="status" value="0" /> <button type="submit"
+                                        class="btn btn-outline-secondary btn-sm" title="Undo / Reset">
+                                        Reset
+                                    </button>
+                                </form>
+                            </div>
+                        }
+
+                        else
+                        {
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="status" value="0" /> <button type="submit"
+                                    class="btn btn-outline-secondary btn-sm" title="Undo / Reset to Pending">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

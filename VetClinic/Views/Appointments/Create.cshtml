@@ -1,0 +1,36 @@
+@model VetClinic.Models.Appointment
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2>Book an Appointment</h2>
+    <hr />
+    
+    <form asp-action="Create">
+        <div class="form-group mb-3">
+            <label class="control-label">Which Pet?</label>
+            <select asp-for="PetId" class="form-control" asp-items="ViewBag.PetId"></select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="control-label">Select Doctor</label>
+            <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId"></select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="DateTime" class="control-label">Date & Time</label>
+            <input asp-for="DateTime" class="form-control" type="datetime-local" 
+                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="control-label">Reason for Visit (Optional)</label>
+            <textarea asp-for="Description" class="form-control" rows="3" 
+                      placeholder="e.g., Annual vaccination, limping on left leg, etc."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+    </form>
+</div>

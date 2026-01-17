@@ -24,5 +24,7 @@ namespace VetClinic.Models
         public Pet? Pet { get; set; } // Make nullable to avoid constructor warnings
         
         public Consultation? Consultation { get; set; }
+
+        public string? Description { get; set; }
     }
 }
