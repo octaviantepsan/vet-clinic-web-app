@@ -1,0 +1,47 @@
+@model IEnumerable<VetClinic.Models.Bill>
+@{ ViewData["Title"] = "My Bills"; }
+
+<div class="container mt-5">
+    <h2><i class="bi bi-receipt"></i> My Invoices</h2>
+    <hr />
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">You have no invoices yet.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100 border-start border-5 @(item.IsPaid ? "border-success" : "border-danger")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h5 class="card-title">
+                                    @(item.Consultation?.Appointment?.DateTime.ToString("MMM dd, yyyy") ?? "Date Unknown")
+                                </h5>
+                                
+                                @if (item.IsPaid) { <span class="badge bg-success">PAID</span> }
+                                else { <span class="badge bg-danger">UNPAID</span> }
+                            </div>
+                            
+                            <p class="mb-1">
+                                <strong>Pet:</strong> @(item.Consultation?.Appointment?.Pet?.Name ?? "Unknown Pet")
+                            </p>
+                            <p class="mb-1">
+                                <strong>Service:</strong> @(item.Consultation?.Diagnosis ?? "Consultation")
+                            </p>
+                            
+                            <h4 class="mt-3">$@item.TotalAmount</h4>
+                            
+                            <a asp-action="Print" asp-route-id="@item.Id" target="_blank" class="btn btn-outline-dark w-100 mt-2">
+                                <i class="bi bi-printer"></i> View & Print Invoice
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

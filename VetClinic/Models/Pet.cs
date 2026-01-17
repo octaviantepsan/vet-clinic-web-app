@@ -21,11 +21,16 @@ namespace VetClinic.Models
         public int Age { get; set; }
         public double Weight { get; set; }
 
+        public string? ImageUrl { get; set; }
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
         // Link to Owner (Client)
         [Required]
         public required string OwnerId { get; set; } // Fixed with 'required'
 
         [ForeignKey("OwnerId")]
         public ApplicationUser? Owner { get; set; } // Optional: EF Core handles this link automatically
+
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }

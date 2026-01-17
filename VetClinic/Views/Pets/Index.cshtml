@@ -6,37 +6,68 @@
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Pets</h2>
-        <a asp-action="Create" class="btn btn-success">
+        <h2>🐾 My Pets</h2>
+        <a asp-action="Create" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Add New Pet
         </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            You haven't added any pets yet. Click the button above to add one!
+        <div class="alert alert-info text-center">
+            You haven't added any pets yet.
         </div>
     }
     else
     {
         <div class="row">
-            @foreach (var pet in Model)
+            @foreach (var item in Model)
             {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center">
-                            <h3 class="card-title text-primary">@pet.Name</h3>
-                            <span class="badge bg-secondary mb-2">@pet.Species</span>
-                            <hr />
-                            <p class="text-start">
-                                <strong>Breed:</strong> @pet.Breed <br />
-                                <strong>Age:</strong> @pet.Age years <br />
-                                <strong>Weight:</strong> @pet.Weight kg
-                            </p>
-                        </div>
-                        <div class="card-footer bg-white border-top-0">
-                            <a href="#" class="btn btn-outline-primary btn-sm w-100">Medical History</a>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100 border-0">
+                        
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <div style="height: 200px; overflow: hidden; background-color: #f8f9fa;">
+                                <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card-header bg-light text-center py-5">
+                                <i class="bi bi-github fs-1 text-secondary opacity-50"></i>
+                            </div>
+                        }
+                        
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h4 class="card-title fw-bold mb-0">@item.Name</h4>
+                                    <span class="badge bg-light text-dark border mt-1">@item.Species</span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">Age</small>
+                                    <span class="fw-bold">@item.Age yrs</span>
+                                </div>
+                            </div>
+
+                            <hr class="my-3 text-muted opacity-25" />
+
+                            <div class="d-grid gap-2">
+                                <a asp-action="Details" asp-route-id="@item.Id" fragment="medical-history" class="btn btn-info text-white btn-sm">
+                                    <i class="bi bi-clipboard2-pulse"></i> Medical History
+                                </a>
+
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" title="Delete Pet">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

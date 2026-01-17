@@ -1,0 +1,129 @@
+@model VetClinic.Models.Bill
+
+@{
+    Layout = null; // No Navbar, No Footer
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice #@Model.Id - VetClinic</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 40px;
+        }
+
+        .invoice-box {
+            background: white;
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        @@media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-box {
+                box-shadow: none;
+                border: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="invoice-box">
+        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
+            <div>
+                <h1 class="text-primary fw-bold">VetClinic</h1>
+                <p class="mb-0">123 Animal Street</p>
+                <p>Cityville, ST 12345</p>
+            </div>
+            <div class="text-end">
+                <h3 class="fw-light">INVOICE</h3>
+                <h5 class="text-muted">#@Model.Id.ToString("D5")</h5>
+                <p class="mb-0">Date: @DateTime.Now.ToString("MMM dd, yyyy")</p>
+                @if (Model.IsPaid)
+                {
+                    <span class="badge bg-success fs-5 mt-2">PAID</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger fs-5 mt-2">DUE NOW</span>
+                }
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-6">
+                <h5 class="text-muted small text-uppercase">Bill To</h5>
+                <h4>@(Model.Consultation?.Appointment?.Pet?.Owner?.FirstName ?? "Client")
+                    @(Model.Consultation?.Appointment?.Pet?.Owner?.LastName ?? "")</h4>
+                <p class="mb-0">@(Model.Consultation?.Appointment?.Pet?.Owner?.PhoneNumber ?? "")</p>
+                <p>@(Model.Consultation?.Appointment?.Pet?.Owner?.Email ?? "")</p>
+            </div>
+            <div class="col-6 text-end">
+                <h5 class="text-muted small text-uppercase">Patient</h5>
+                <h4>@(Model.Consultation?.Appointment?.Pet?.Name ?? "Pet")</h4>
+                <p class="mb-0">Species: @(Model.Consultation?.Appointment?.Pet?.Species ?? "-")</p>
+                <p>Doctor: Dr. @(Model.Consultation?.Appointment?.Doctor?.ApplicationUser?.LastName ?? "Smith")</p>
+            </div>
+        </div>
+
+        <table class="table table-bordered mb-4">
+            <thead class="table-light">
+                <tr>
+                    <th>Description</th>
+                    <th class="text-end" style="width: 150px;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong>Medical Consultation</strong><br />
+                        <span class="text-muted">Diagnosis: @(Model.Consultation?.Diagnosis)</span>
+                    </td>
+                    <td class="text-end">$@Model.TotalAmount</td>
+                </tr>
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <td class="text-end fw-bold">TOTAL</td>
+                    <td class="text-end fw-bold fs-5">$@Model.TotalAmount</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-5 text-center text-muted small">
+            <p>Thank you for trusting us with your pet's health!</p>
+            <p>Checks payable to "VetClinic Inc."</p>
+        </div>
+
+        <div class="text-center mt-4 no-print">
+            <button onclick="window.print()" class="btn btn-primary btn-lg">
+                <i class="bi bi-printer-fill"></i> Print Now
+            </button>
+            <a href="javascript:window.close()" class="btn btn-link">Close</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

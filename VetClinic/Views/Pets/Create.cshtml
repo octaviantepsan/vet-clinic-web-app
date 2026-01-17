@@ -44,6 +44,25 @@
                     </div>
                 </div>
 
+                <form asp-action="Edit" enctype="multipart/form-data">
+
+                    <div class="mb-4">
+                        <label asp-for="ImageFile" class="form-label">Profile Picture</label>
+                        <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                        <div class="form-text">Supported formats: JPG, PNG, GIF.</div>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mt-2">
+                                <small class="text-muted">Current Image:</small><br />
+                                <img src="@Model.ImageUrl" alt="Current Pet Image" class="img-thumbnail"
+                                    style="max-height: 100px; width: auto;" />
+                            </div>
+                        }
+                    </div>
+
+                </form>
+
                 <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-success btn-lg">Save Pet</button>
                     <a asp-action="Index" class="btn btn-light">Cancel</a>

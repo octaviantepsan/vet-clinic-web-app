@@ -1,0 +1,74 @@
+@model VetClinic.Models.Pet
+
+@{
+    ViewData["Title"] = "Pet Details";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>@Model.Name</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-2">Species</dt>
+                <dd class="col-sm-10">@Model.Species</dd>
+
+                <dt class="col-sm-2">Breed</dt>
+                <dd class="col-sm-10">@(Model.Breed ?? "Unknown")</dd>
+
+                <dt class="col-sm-2">Age</dt>
+                <dd class="col-sm-10">@Model.Age years</dd>
+            </dl>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+    <h3 id="medical-history"><i class="bi bi-clipboard2-pulse"></i> Medical History</h3>
+
+    @if (Model.Appointments == null || !Model.Appointments.Any(a => a.Consultation != null))
+    {
+        <div class="alert alert-light text-muted border">
+            No medical records found for @Model.Name yet.
+        </div>
+    }
+    else
+    {
+        <div class="timeline mt-4">
+            @foreach (var appt in Model.Appointments.Where(a => a.Consultation != null).OrderByDescending(a => a.DateTime))
+            {
+                <div class="card mb-3 shadow-sm border-start border-4 border-primary">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <strong class="fs-5">@appt.DateTime.ToString("MMMM dd, yyyy")</strong>
+
+                        <span class="badge bg-secondary">
+                            Dr. @(appt.Doctor?.ApplicationUser?.LastName ?? "Staff")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">Diagnosis: @(appt.Consultation?.Diagnosis ?? "-")</h5>
+                        <p class="card-text text-muted">
+                            <strong>Treatment:</strong> @(appt.Consultation?.Treatment ?? "None recorded")
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <span class="text-muted small">
+                                Cost: $@(appt.Consultation?.ServiceCost)
+                            </span>
+
+                            @if (appt.Consultation?.Bill != null)
+                            {
+                                <a asp-controller="Billing" asp-action="Print" asp-route-id="@appt.Consultation.Bill.Id"
+                                    target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-text"></i> View Invoice
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
