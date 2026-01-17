@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Add New Doctor";
+}
+
+<div class="container mt-5">
+    <h2>Add New Veterinarian</h2>
+    <hr />
+    <form asp-action="Create" method="post">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Login Details</h4>
+                <div class="form-group mb-3">
+                    <label>First Name</label>
+                    <input name="firstName" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label>Last Name</label>
+                    <input name="lastName" class="form-control" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label>Email Address</label>
+                    <input name="email" type="email" class="form-control" required />
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Professional Details</h4>
+                <div class="form-group mb-3">
+                    <label>Specialization</label>
+                    <select name="specialization" class="form-control">
+                        <option>General Surgeon</option>
+                        <option>Dermatologist</option>
+                        <option>Dentist</option>
+                        <option>Emergency Care</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Bio / Description</label>
+                    <textarea name="bio" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Create Doctor Account</button>
+        <a asp-action="Index" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

@@ -1,0 +1,43 @@
+@model IEnumerable<VetClinic.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Veterinarians";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Medical Staff</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Doctor
+        </a>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Specialization</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var doctor in Model)
+            {
+                <tr>
+                    <td>
+                        @doctor.ApplicationUser?.FullName
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark">@doctor.Specialization</span>
+                    </td>
+                    <td>@doctor.ApplicationUser?.Email</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,46 @@
+@model IEnumerable<VetClinic.Models.Pet>
+
+@{
+    ViewData["Title"] = "My Pets";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Pets</h2>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Add New Pet
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You haven't added any pets yet. Click the button above to add one!
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var pet in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <h3 class="card-title text-primary">@pet.Name</h3>
+                            <span class="badge bg-secondary mb-2">@pet.Species</span>
+                            <hr />
+                            <p class="text-start">
+                                <strong>Breed:</strong> @pet.Breed <br />
+                                <strong>Age:</strong> @pet.Age years <br />
+                                <strong>Weight:</strong> @pet.Weight kg
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="#" class="btn btn-outline-primary btn-sm w-100">Medical History</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

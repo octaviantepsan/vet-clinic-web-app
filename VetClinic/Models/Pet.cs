@@ -18,9 +18,8 @@ namespace VetClinic.Models
 
         public string? Breed { get; set; } // Fixed: Made optional (Nullable)
 
-        public DateTime DateOfBirth { get; set; }
-
-        public string? PhotoUrl { get; set; } // Optional
+        public int Age { get; set; }
+        public double Weight { get; set; }
 
         // Link to Owner (Client)
         [Required]
