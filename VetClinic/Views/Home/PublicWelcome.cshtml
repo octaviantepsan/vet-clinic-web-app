@@ -1,0 +1,13 @@
+@{ ViewData["Title"] = "Welcome"; }
+
+<div class="text-center mt-5">
+    <h1 class="display-4 text-primary fw-bold">Welcome to VetClinic</h1>
+    <p class="lead mb-4">Professional care for your furry friends.</p>
+    <img src="https://images.unsplash.com/photo-1599443015574-be5fe8a05783?auto=format&fit=crop&q=80&w=1000" 
+         class="img-fluid rounded shadow-lg mb-5" style="max-height: 400px;" alt="Vet Dog">
+    
+    <div>
+        <a class="btn btn-primary btn-lg px-4 gap-3" asp-area="Identity" asp-page="/Account/Register">Register Your Pet</a>
+        <a class="btn btn-outline-secondary btn-lg px-4" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </div>
+</div>

@@ -1,37 +1,40 @@
 @model VetClinic.Models.Appointment
 
 @{
-    ViewData["Title"] = "Reschedule Appointment";
+    ViewData["Title"] = "Propose New Time";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5" style="max-width: 600px;">
-    <div class="card shadow">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0"><i class="bi bi-calendar-range"></i> Propose New Date</h4>
-        </div>
-        <div class="card-body">
-            <p class="lead">
-                You are moving the appointment for <strong>@Model.Pet?.Name</strong>.
-            </p>
-            <p class="text-muted">
-                Current Date: <strong>@Model.DateTime.ToString("f")</strong> <br/>
-                Doctor: <strong>Dr. @(Model.Doctor?.ApplicationUser?.FullName ?? "Any")</strong>
-            </p>
-
-            <form asp-action="Reschedule" method="post">
-                <input type="hidden" asp-for="Id" />
-                
-                <div class="form-group mb-4">
-                    <label class="form-label fw-bold">Select New Date & Time</label>
-                    <input type="datetime-local" name="newDate" class="form-control form-control-lg" 
-                           value="@Model.DateTime.ToString("yyyy-MM-ddTHH:mm")" required />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Propose New Time</h5>
                 </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info border-0 bg-info-subtle text-info-emphasis">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Current requested time: <strong>@Model.DateTime.ToString("f")</strong>
+                    </div>
 
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-warning fw-bold">Send Proposal</button>
+                    <form asp-action="Reschedule">
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select New Date & Time</label>
+                            <input type="datetime-local" name="newDate" class="form-control form-control-lg" required 
+                                   value="@Model.DateTime.ToString("yyyy-MM-ddTHH:mm")" />
+                            <small class="text-muted">The client will be notified and asked to accept this proposal.</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-warning px-4 fw-bold">Send Proposal</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

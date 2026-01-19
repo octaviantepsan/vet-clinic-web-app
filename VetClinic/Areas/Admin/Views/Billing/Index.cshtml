@@ -1,82 +1,124 @@
 @model IEnumerable<VetClinic.Models.Bill>
 
 @{
-    ViewData["Title"] = "Billing Management";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Force the main layout
+    ViewData["Title"] = "Admin - Financial Records";
+    // FIX: Restore Navbar
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    var totalRevenue = Model.Where(b => b.IsPaid).Sum(b => b.TotalAmount);
+    var pendingRevenue = Model.Where(b => !b.IsPaid).Sum(b => b.TotalAmount);
 }
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>💰 Invoices & Billing</h2>
         <div>
-            </div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-wallet2 text-primary me-2"></i>Billing & Invoices</h2>
+            <p class="text-muted mb-0">Manage clinic revenue and track outstanding payments.</p>
+        </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success-subtle p-3 rounded-circle me-3 text-success">
+                            <i class="bi bi-cash-stack fs-4"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-bold text-uppercase">Total Collected</small>
+                            <h3 class="fw-bold text-dark mb-0">$@totalRevenue.ToString("N2")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-danger-subtle p-3 rounded-circle me-3 text-danger">
+                            <i class="bi bi-exclamation-circle fs-4"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-bold text-uppercase">Pending Payments</small>
+                            <h3 class="fw-bold text-dark mb-0">$@pendingRevenue.ToString("N2")</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">All Invoices</h5>
+            <span class="badge bg-light text-secondary border">@Model.Count() Records</span>
+        </div>
+        
+        <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead class="bg-light">
                     <tr>
-                        <th>Date</th>
-                        <th>Patient</th>
-                        <th>Owner</th>
-                        <th>Service</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th class="ps-4 text-uppercase text-muted small fw-bold">Invoice #</th>
+                        <th class="text-uppercase text-muted small fw-bold">Date</th>
+                        <th class="text-uppercase text-muted small fw-bold">Client / Patient</th>
+                        <th class="text-uppercase text-muted small fw-bold">Amount</th>
+                        <th class="text-uppercase text-muted small fw-bold">Status</th>
+                        <th class="text-end pe-4 text-uppercase text-muted small fw-bold">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.OrderByDescending(b => b.Consultation!.Appointment!.DateTime))
                     {
                         <tr>
+                            <td class="ps-4"><span class="font-monospace text-secondary">#INV-@item.Id.ToString("D5")</span></td>
+                            
+                            <td>@(item.Consultation?.Appointment?.DateTime.ToString("MMM dd, yyyy") ?? "-")</td>
+                            
                             <td>
-                                <strong>@item.Consultation?.Appointment?.DateTime.ToString("MMM dd")</strong> <br/>
-                                <small class="text-muted">@item.Consultation?.Appointment?.DateTime.ToString("HH:mm")</small>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-none d-md-block bg-light rounded-circle d-flex align-items-center justify-content-center me-2 border" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-person text-secondary small"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@(item.Consultation?.Appointment?.Pet?.Owner?.Email ?? "Unknown")</div>
+                                        <div class="small text-muted">Pet: @(item.Consultation?.Appointment?.Pet?.Name ?? "N/A")</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td>
-                                <strong>@(item.Consultation?.Appointment?.Pet?.Name ?? "Unknown")</strong>
-                            </td>
-                            <td>
-                                @(item.Consultation?.Appointment?.Pet?.Owner?.FirstName ?? "Unknown") <br/>
-                                <small class="text-muted">@(item.Consultation?.Appointment?.Pet?.Owner?.PhoneNumber ?? "-")</small>
-                            </td>
-                            <td>
-                                <span class="d-inline-block text-truncate" style="max-width: 150px;">
-                                    @(item.Consultation?.Diagnosis ?? "Consultation")
-                                </span>
-                            </td>
-                            <td>
-                                <h5 class="mb-0 text-dark">$@item.TotalAmount</h5>
-                            </td>
+                            
+                            <td><span class="fw-bold text-dark">$@item.TotalAmount.ToString("N2")</span></td>
+                            
                             <td>
                                 @if (item.IsPaid)
                                 {
-                                    <span class="badge bg-success rounded-pill">
-                                        <i class="bi bi-check-circle-fill"></i> Paid
-                                    </span>
-                                    <div class="small text-muted mt-1">@item.PaymentDate?.ToString("d")</div>
+                                    <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">Paid</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger rounded-pill">Unpaid</span>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger rounded-pill px-3">Unpaid</span>
                                 }
                             </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a asp-action="Print" asp-route-id="@item.Id" target="_blank" class="btn btn-outline-secondary btn-sm" title="Print Invoice">
-                                        <i class="bi bi-printer"></i> Print
+
+                            <td class="text-end pe-4">
+                                <div class="btn-group shadow-sm rounded-pill" role="group">
+                                    
+                                    <a asp-area="" asp-controller="Billing" asp-action="Edit" asp-route-id="@item.Id" 
+                                       class="btn btn-sm btn-white border text-primary" title="Edit / Mark Paid">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    
+                                    <a asp-area="" asp-controller="Billing" asp-action="Print" asp-route-id="@item.Id" target="_blank" 
+                                       class="btn btn-sm btn-white border text-secondary" title="Print">
+                                        <i class="bi bi-printer"></i>
                                     </a>
 
-                                    @if (!item.IsPaid)
-                                    {
-                                        <form asp-action="MarkPaid" method="post" onsubmit="return confirm('Confirm payment received?');">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit" class="btn btn-success btn-sm ms-1" title="Mark as Paid">
-                                                <i class="bi bi-cash-coin"></i> Pay
-                                            </button>
-                                        </form>
-                                    }
+                                    <a asp-area="" asp-controller="Billing" asp-action="Details" asp-route-id="@item.Id" 
+                                       class="btn btn-sm btn-white border text-info" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>

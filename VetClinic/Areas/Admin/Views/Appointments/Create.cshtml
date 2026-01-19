@@ -1,0 +1,76 @@
+@model VetClinic.Models.Appointment
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-3">
+                
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-calendar-plus me-2"></i>New Appointment</h4>
+                </div>
+
+                <div class="card-body p-4 bg-light bg-opacity-10">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm mb-4"></div>
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="bi bi-clock me-1"></i> Scheduling
+                            </h6>
+                            <div class="form-floating mb-3">
+                                <input asp-for="DateTime" class="form-control border-0 shadow-sm" placeholder="Select Date" />
+                                <label asp-for="DateTime">Date & Time</label>
+                                <span asp-validation-for="DateTime" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25 my-4">
+
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="bi bi-person-lines-fill me-1"></i> Assignment Details
+                            </h6>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select asp-for="PetId" class ="form-select border-0 shadow-sm" asp-items="ViewBag.PetId">
+                                            <option selected disabled>Select Patient...</option>
+                                        </select>
+                                        <label asp-for="PetId">Patient (Pet)</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <select asp-for="DoctorId" class ="form-select border-0 shadow-sm" asp-items="ViewBag.DoctorId">
+                                            <option selected disabled>Select Doctor...</option>
+                                        </select>
+                                        <label asp-for="DoctorId">Assign Doctor</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 shadow-sm">
+                                <i class="bi bi-check-lg me-1"></i> Confirm Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

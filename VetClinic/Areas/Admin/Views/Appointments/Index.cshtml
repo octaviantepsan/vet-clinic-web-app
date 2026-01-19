@@ -1,107 +1,185 @@
 @model IEnumerable<VetClinic.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Manage Appointments";
+    ViewData["Title"] = "Clinic Schedule";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
-    <h2>Appointment Requests</h2>
-    <hr />
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-calendar-week text-primary me-2"></i>Clinic Schedule</h2>
+            <p class="text-muted mb-0">Overview of all appointments across all doctors.</p>
+        </div>
+    </div>
 
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Date & Time</th>
-                <th>Patient (Client)</th>
-                <th>Doctor</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                string rowClass = "";
-                // Visual Logic: Yellow for Pending, Green tint for Accepted
-                if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
-                {
-                    rowClass = "table-warning";
-                }
-                else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
-                {
-                    rowClass = "table-success"; // Light green
-                }
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-primary">
+                <div class="card-body py-3">
+                    <small class="text-muted fw-bold text-uppercase">Total Appointments</small>
+                    <h3 class="fw-bold text-dark mb-0">@Model.Count()</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-info">
+                <div class="card-body py-3">
+                    <small class="text-muted fw-bold text-uppercase">Pending Requests</small>
+                    <h3 class="fw-bold text-dark mb-0">@Model.Count(a => a.Status == VetClinic.Models.AppointmentStatus.Pending)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <tr class="@rowClass">
-                    <td>
-                        <strong>@item.DateTime.ToString("MMM dd")</strong> <br />
-                        @item.DateTime.ToString("HH:mm")
-                    </td>
-                    <td>
-                        <strong>@(item.Pet?.Name ?? "Unknown")</strong> <br />
-                        <span class="text-muted small">Owner: @(item.Pet?.Owner?.Email ?? "Unknown")</span>
-                    </td>
-                    <td>Dr. @(item.Doctor?.ApplicationUser?.FullName ?? "Any")</td>
-                    <td>@(item.Description ?? "-")</td>
-                    <td><span class="badge bg-secondary">@item.Status</span></td>
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="mb-0 fw-bold text-dark">Master Appointment List</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 text-uppercase text-muted small fw-bold">Date & Time</th>
+                        <th class="text-uppercase text-muted small fw-bold">Pet / Owner</th>
+                        <th class="text-uppercase text-muted small fw-bold">Assigned Doctor</th>
+                        <th class="text-uppercase text-muted small fw-bold">Status</th>
+                        <th class="text-end pe-4 text-uppercase text-muted small fw-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderByDescending(a => a.DateTime))
+                    {
+                        var isPending = item.Status == VetClinic.Models.AppointmentStatus.Pending;
+                        var isProposed = item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed;
+                        var isAccepted = item.Status == VetClinic.Models.AppointmentStatus.Accepted;
+                        var isCompleted = item.Consultation != null; // Or item.Status == Completed if you set it manually
 
-                    <td>
-                        @if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
-                        {
-                            <div class="btn-group">
-                                <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="hidden" name="status" value="1" /> <button type="submit"
-                                        class="btn btn-success btn-sm">Accept</button>
-                                </form>
-                                <form asp-action="UpdateStatus" method="post" class="d-inline ms-1">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="hidden" name="status" value="2" /> <button type="submit"
-                                        class="btn btn-danger btn-sm">Refuse</button>
-                                </form>
-                                <a asp-action="Reschedule" asp-route-id="@item.Id" class="btn btn-warning btn-sm"
-                                    title="Propose new date">
-                                    <i class="bi bi-clock-history"></i> Move
-                                </a>
-                            </div>
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">@item.DateTime.ToString("MMM dd, yyyy")</span>
+                                    <span class="text-muted small">@item.DateTime.ToString("h:mm tt")</span>
+                                </div>
+                            </td>
 
-                        }
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3 border" style="width: 40px; height: 40px; overflow: hidden;">
+                                        @if (!string.IsNullOrEmpty(item.Pet?.ImageUrl))
+                                        {
+                                            <img src="@item.Pet.ImageUrl" style="width: 100%; height: 100%; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-github text-secondary opacity-50"></i>
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@(item.Pet?.Name ?? "Unknown Pet")</div>
+                                        <div class="small text-muted">
+                                            <i class="bi bi-person me-1"></i>@(item.Pet?.Owner?.Email ?? "Unknown Owner")
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
 
-                        else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
-                        {
-                            <div class="d-flex gap-2">
-                                <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="hidden" name="status" value="3" /> <button type="submit"
-                                        class="btn btn-primary btn-sm" title="Mark visit as finished">
-                                        <i class="bi bi-check-all"></i> Mark Completed
-                                    </button>
-                                </form>
+                            <td>
+                                @if (item.Doctor?.ApplicationUser != null)
+                                {
+                                    <span class="d-inline-flex align-items-center px-2 py-1 rounded bg-light border text-secondary small">
+                                        <i class="bi bi-person-badge me-2"></i> Dr. @item.Doctor.ApplicationUser.LastName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Unassigned</span>
+                                }
+                            </td>
 
-                                <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="hidden" name="status" value="0" /> <button type="submit"
-                                        class="btn btn-outline-secondary btn-sm" title="Undo / Reset">
-                                        Reset
-                                    </button>
-                                </form>
-                            </div>
-                        }
+                            <td>
+                                @if (isCompleted)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                    </span>
+                                }
+                                else if (isProposed)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning rounded-pill px-3">
+                                        <i class="bi bi-hourglass-split me-1"></i> Waiting for Client
+                                    </span>
+                                }
+                                else if (isPending)
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info rounded-pill px-3">
+                                        <i class="bi bi-exclamation-circle me-1"></i> New Request
+                                    </span>
+                                }
+                                else if (isAccepted)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary rounded-pill px-3">
+                                        <i class="bi bi-check-circle me-1"></i> Accepted
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3">@item.Status</span>
+                                }
+                            </td>
 
-                        else
-                        {
-                            <form asp-action="UpdateStatus" method="post">
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <input type="hidden" name="status" value="0" /> <button type="submit"
-                                    class="btn btn-outline-secondary btn-sm" title="Undo / Reset to Pending">
-                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-1">
+                                    
+                                    @if (isPending)
+                                    {
+                                        <form asp-action="Confirm" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                             <button type="submit" class="btn btn-sm btn-success text-white shadow-sm" title="Accept">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+
+                                        <a asp-action="Reschedule" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-dark shadow-sm" title="Propose New Time">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+
+                                        <form asp-action="Deny" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger text-white shadow-sm" title="Refuse" onclick="return confirm('Refuse this appointment?');">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (isAccepted && !isCompleted)
+                                    {
+                                        <a asp-action="Reschedule" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning border text-dark" title="Move">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                         <form asp-action="Deny" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger border" title="Cancel">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a asp-area="" asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light border">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-calendar-x"></i></div>
+                <h5 class="text-muted">No appointments found.</h5>
+            </div>
+        }
+    </div>
 </div>

@@ -7,7 +7,7 @@ using VetClinic.Models;
 namespace VetClinic.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")] // Only Admins can touch this
+    [Authorize(Roles = "Admin")]
     public class AppointmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,35 +21,48 @@ namespace VetClinic.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var appointments = await _context.Appointments
-                .Include(a => a.Pet)
-                    .ThenInclude(p => p!.Owner) // Get Client Name
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d!.ApplicationUser) // Get Doctor Name
-                .OrderByDescending(a => a.DateTime) // Newest first
+                .Include(a => a.Pet).ThenInclude(p => p!.Owner)
+                .Include(a => a.Doctor).ThenInclude(d => d!.ApplicationUser)
+                .Include(a => a.Consultation) // FIXED: Added this so you see "Completed" status
+                .OrderByDescending(a => a.DateTime)
                 .ToListAsync();
 
             return View(appointments);
         }
 
-        // POST: Admin/Appointments/UpdateStatus
+        // POST: Admin/Appointments/Confirm/5
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, int status) // Change AppointmentStatus to int
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Confirm(int id)
         {
             var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null) return NotFound();
 
-            if (appointment == null)
-            {
-                return NotFound();
-            }
+            // FIX: Changed 'Scheduled' to 'Confirmed'
+            appointment.Status = AppointmentStatus.Accepted;
 
-            // Cast the integer back to the Enum manually
-            appointment.Status = (AppointmentStatus)status;
-
-            _context.Update(appointment); // Explicitly mark as modified
+            _context.Update(appointment);
             await _context.SaveChangesAsync();
 
-            TempData["AlertMessage"] = $"Appointment updated successfully.";
+            TempData["AlertMessage"] = "Appointment Confirmed.";
+            return RedirectToAction(nameof(Index));
+        }
 
+        // POST: Admin/Appointments/Deny/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deny(int id)
+        {
+            var appointment = await _context.Appointments.FindAsync(id);
+            if (appointment == null) return NotFound();
+
+            // FIX: Changed 'Cancelled' to 'Declined'
+            appointment.Status = AppointmentStatus.Refused;
+
+            _context.Update(appointment);
+            await _context.SaveChangesAsync();
+
+            TempData["AlertMessage"] = "Appointment Denied.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,24 +76,27 @@ namespace VetClinic.Areas.Admin.Controllers
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (appointment == null) return NotFound();
-
             return View(appointment);
         }
 
         // POST: Admin/Appointments/Reschedule/5
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reschedule(int id, DateTime newDate)
         {
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null) return NotFound();
 
-            // Update logic
-            appointment.DateTime = newDate; // Set the new time
-            appointment.Status = AppointmentStatus.RescheduleProposed; // Change status
+            // 1. Update the date
+            appointment.DateTime = newDate;
+
+            // 2. RESTORED LOGIC: Set status to PROPOSAL
+            // The client must now log in and accept/decline this new time.
+            appointment.Status = AppointmentStatus.RescheduleProposed;
 
             await _context.SaveChangesAsync();
 
-            TempData["AlertMessage"] = "New date proposed. Waiting for client confirmation.";
+            TempData["AlertMessage"] = "Proposal sent to client. Waiting for their approval.";
             return RedirectToAction(nameof(Index));
         }
     }
