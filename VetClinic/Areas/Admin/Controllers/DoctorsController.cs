@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Data;
 using VetClinic.Models;
 
 namespace VetClinic.Areas.Admin.Controllers
 {
-    [Area("Admin")] // IMPORTANT: Tells MVC this belongs to the Admin area
-    [Authorize(Roles = "Admin")] // Security: Only Admins can enter here
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class DoctorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,19 +21,16 @@ namespace VetClinic.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        // GET: Admin/Doctors/Index
-        public IActionResult Index()
+        // GET: Admin/Doctors
+        public async Task<IActionResult> Index()
         {
-            // We use .Include() to fetch the User data (Name, Email) along with the Doctor profile
-            var doctors = _context.Doctors
+            var doctors = await _context.Doctors
                 .Include(d => d.ApplicationUser)
-                .ToList();
-
+                .ToListAsync();
             return View(doctors);
         }
 
         // GET: Admin/Doctors/Create
-        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -40,47 +38,94 @@ namespace VetClinic.Areas.Admin.Controllers
 
         // POST: Admin/Doctors/Create
         [HttpPost]
-        public async Task<IActionResult> Create(string firstName, string lastName, string email, string specialization, string bio)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string firstName, string lastName, string email, string password, string specialization, string bio)
         {
-            // 1. Create the Login Account first
+            // 1. Create the Login Account
             var user = new ApplicationUser
             {
                 UserName = email,
                 Email = email,
                 FirstName = firstName,
                 LastName = lastName,
-                EmailConfirmed = true
+                EmailConfirmed = true, 
+                IsDarkMode = false
             };
 
-            // Note: We are setting a default temporary password. 
-            // In a real app, you would email them a reset link.
-            var result = await _userManager.CreateAsync(user, "Doctor123!");
+            var result = await _userManager.CreateAsync(user, password);
 
             if (result.Succeeded)
             {
-                // 2. Assign "Doctor" Role
+                // 2. Assign Role
                 await _userManager.AddToRoleAsync(user, "Doctor");
 
-                // 3. Create the Doctor Profile linked to that user
+                // 3. Create Doctor Profile
                 var doctor = new Doctor
                 {
                     ApplicationUserId = user.Id,
                     Specialization = specialization,
                     Bio = bio
+                    // REMOVED: IsAvailable = true (caused the error)
                 };
 
-                _context.Doctors.Add(doctor);
+                _context.Add(doctor);
                 await _context.SaveChangesAsync();
 
+                TempData["AlertMessage"] = $"Dr. {lastName} created successfully!";
                 return RedirectToAction(nameof(Index));
             }
 
-            // If failure, show errors
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError("", error.Description);
             }
+
             return View();
+        }
+        
+        // GET: Admin/Doctors/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var doctor = await _context.Doctors.Include(d => d.ApplicationUser).FirstOrDefaultAsync(m => m.Id == id);
+            if (doctor == null) return NotFound();
+
+            return View(doctor);
+        }
+
+        // POST: Admin/Doctors/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Doctor doctor, string firstName, string lastName)
+        {
+            if (id != doctor.Id) return NotFound();
+
+            var existingDoctor = await _context.Doctors
+                .Include(d => d.ApplicationUser)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (existingDoctor == null) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                // Update Doctor Info
+                existingDoctor.Specialization = doctor.Specialization;
+                existingDoctor.Bio = doctor.Bio;
+                // REMOVED: existingDoctor.IsAvailable = doctor.IsAvailable; (caused the error)
+
+                // Update User Info
+                if (existingDoctor.ApplicationUser != null)
+                {
+                    existingDoctor.ApplicationUser.FirstName = firstName;
+                    existingDoctor.ApplicationUser.LastName = lastName;
+                }
+
+                _context.Update(existingDoctor);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(doctor);
         }
     }
 }
