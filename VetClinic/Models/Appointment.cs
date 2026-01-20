@@ -8,8 +8,8 @@ namespace VetClinic.Models
         Pending = 0,
         Accepted = 1,
         Refused = 2,
-        Completed = 3,         // For when the visit is done
-        RescheduleProposed = 4 // NEW: Admin suggests a new time
+        Completed = 3,         
+        RescheduleProposed = 4 
     }
 
     public class Appointment
@@ -24,11 +24,11 @@ namespace VetClinic.Models
 
         [Required]
         public int DoctorId { get; set; }
-        public Doctor? Doctor { get; set; } // Make nullable to avoid constructor warnings
+        public Doctor? Doctor { get; set; }
 
         [Required]
         public int PetId { get; set; }
-        public Pet? Pet { get; set; } // Make nullable to avoid constructor warnings
+        public Pet? Pet { get; set; }
 
         public Consultation? Consultation { get; set; }
 

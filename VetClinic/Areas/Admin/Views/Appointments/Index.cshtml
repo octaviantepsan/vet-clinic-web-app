@@ -53,7 +53,7 @@
                         var isPending = item.Status == VetClinic.Models.AppointmentStatus.Pending;
                         var isProposed = item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed;
                         var isAccepted = item.Status == VetClinic.Models.AppointmentStatus.Accepted;
-                        var isCompleted = item.Consultation != null; // Or item.Status == Completed if you set it manually
+                        var isCompleted = item.Consultation != null;
 
                         <tr>
                             <td class="ps-4">

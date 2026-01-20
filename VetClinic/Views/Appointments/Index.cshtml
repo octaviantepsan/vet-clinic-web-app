@@ -34,15 +34,14 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    // Visual Logic: Highlight rows based on status
                     string rowClass = "";
                     if (item.Status == VetClinic.Models.AppointmentStatus.RescheduleProposed)
                     {
-                        rowClass = "table-warning border-start border-5 border-warning"; // Yellow Highlight
+                        rowClass = "table-warning border-start border-5 border-warning";
                     }
                     else if (item.Status == VetClinic.Models.AppointmentStatus.Accepted)
                     {
-                        rowClass = "table-success"; // Green Highlight
+                        rowClass = "table-success";
                     }
 
                     <tr class="@rowClass">
@@ -122,12 +121,10 @@
                                     </form>
                                 </div>
                             }
-                            // SCENARIO B: Normal Pending (Client can cancel if they changed their mind)
                             else if (item.Status == VetClinic.Models.AppointmentStatus.Pending)
                             {
                                 <span class="text-muted small">Waiting...</span>
                             }
-                            // SCENARIO C: Everything else
                             else
                             {
                                 <span class="text-muted small">-</span>

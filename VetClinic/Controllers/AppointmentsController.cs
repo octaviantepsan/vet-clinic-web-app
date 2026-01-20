@@ -99,7 +99,7 @@ namespace VetClinic.Controllers
                 .Include(a => a.Pet)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
-            // Security Check: Ensure the logged-in user owns this pet
+            // Ensure the logged-in user owns this pet
             var userId = _userManager.GetUserId(User);
             if (appointment == null || appointment.Pet?.OwnerId != userId)
             {
@@ -113,7 +113,6 @@ namespace VetClinic.Controllers
             }
             else
             {
-                // If rejected, we mark it as Refused (Closed) so they can book a fresh one
                 appointment.Status = AppointmentStatus.Refused;
                 TempData["AlertMessage"] = "Appointment cancelled. Please book a new time that suits you.";
             }
@@ -134,27 +133,26 @@ namespace VetClinic.Controllers
 
             if (appointment == null) return NotFound();
 
-            // SECURITY: Only allow if User is Admin
+            // Only allow if User is Admin
             if (!User.IsInRole("Admin"))
             {
-                return Forbid(); // or NotFound()
+                return Forbid();
             }
 
-            // Load Lists for Dropdowns
             ViewData["DoctorId"] = new SelectList(_context.Doctors.Include(d => d.ApplicationUser), "Id", "ApplicationUser.LastName", appointment.DoctorId);
             ViewData["PetId"] = new SelectList(_context.Pets, "Id", "Name", appointment.PetId);
 
             return View(appointment);
         }
 
-        // POST: Appointments/Edit/5
+        // POST: Appointments/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,DateTime,PetId,DoctorId,Status")] Appointment appointment)
         {
             if (id != appointment.Id) return NotFound();
 
-            // SECURITY: Only allow if User is Admin
+            // Only allow if User is Admin
             if (!User.IsInRole("Admin")) return Forbid();
 
             if (ModelState.IsValid)
@@ -169,7 +167,6 @@ namespace VetClinic.Controllers
                     if (!_context.Appointments.Any(e => e.Id == id)) return NotFound();
                     else throw;
                 }
-                // Redirect back to the Admin Dashboard if the user is an Admin
                 return RedirectToAction("Index", "Appointments", new { area = "Admin" });
             }
 
@@ -178,7 +175,7 @@ namespace VetClinic.Controllers
             return View(appointment);
         }
 
-        // GET: Appointments/Delete/5
+        // GET: Appointments/Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -190,13 +187,12 @@ namespace VetClinic.Controllers
 
             if (appointment == null) return NotFound();
 
-            // SECURITY: Only allow if User is Admin
             if (!User.IsInRole("Admin")) return Forbid();
 
             return View(appointment);
         }
 
-        // POST: Appointments/Delete/5
+        // POST: Appointments/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -207,29 +203,26 @@ namespace VetClinic.Controllers
                 _context.Appointments.Remove(appointment);
                 await _context.SaveChangesAsync();
             }
-            // Redirect back to Admin Dashboard
             return RedirectToAction("Index", "Appointments", new { area = "Admin" });
         }
 
-        // GET: Appointments/Details/5
+        // GET: Appointments/Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
             var appointment = await _context.Appointments
                 .Include(a => a.Pet)
-                    .ThenInclude(p => p!.Owner) // Include Owner to show email
+                    .ThenInclude(p => p!.Owner)
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d!.ApplicationUser)
-                .Include(a => a.Consultation) // Include consultation to see if it's finished
+                .Include(a => a.Consultation)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (appointment == null) return NotFound();
 
-            // SECURITY: Allow if User is Owner OR Admin
             var userId = _userManager.GetUserId(User);
 
-            // Use safe navigation (?.) just in case data is missing
             var ownerId = appointment.Pet?.OwnerId;
 
             if (ownerId != userId && !User.IsInRole("Admin"))

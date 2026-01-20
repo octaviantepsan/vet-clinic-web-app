@@ -23,14 +23,13 @@ namespace VetClinic.Areas.Admin.Controllers
             var appointments = await _context.Appointments
                 .Include(a => a.Pet).ThenInclude(p => p!.Owner)
                 .Include(a => a.Doctor).ThenInclude(d => d!.ApplicationUser)
-                .Include(a => a.Consultation) // FIXED: Added this so you see "Completed" status
+                .Include(a => a.Consultation)
                 .OrderByDescending(a => a.DateTime)
                 .ToListAsync();
 
             return View(appointments);
         }
 
-        // POST: Admin/Appointments/Confirm/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirm(int id)
@@ -38,7 +37,6 @@ namespace VetClinic.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null) return NotFound();
 
-            // FIX: Changed 'Scheduled' to 'Confirmed'
             appointment.Status = AppointmentStatus.Accepted;
 
             _context.Update(appointment);
@@ -48,7 +46,7 @@ namespace VetClinic.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Admin/Appointments/Deny/5
+        // POST: Admin/Appointments/Deny
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deny(int id)
@@ -56,7 +54,6 @@ namespace VetClinic.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null) return NotFound();
 
-            // FIX: Changed 'Cancelled' to 'Declined'
             appointment.Status = AppointmentStatus.Refused;
 
             _context.Update(appointment);
@@ -66,7 +63,7 @@ namespace VetClinic.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Admin/Appointments/Reschedule/5
+        // GET: Admin/Appointments/Reschedule
         [HttpGet]
         public async Task<IActionResult> Reschedule(int id)
         {
@@ -79,7 +76,7 @@ namespace VetClinic.Areas.Admin.Controllers
             return View(appointment);
         }
 
-        // POST: Admin/Appointments/Reschedule/5
+        // POST: Admin/Appointments/Reschedule
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reschedule(int id, DateTime newDate)
@@ -87,11 +84,8 @@ namespace VetClinic.Areas.Admin.Controllers
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null) return NotFound();
 
-            // 1. Update the date
             appointment.DateTime = newDate;
 
-            // 2. RESTORED LOGIC: Set status to PROPOSAL
-            // The client must now log in and accept/decline this new time.
             appointment.Status = AppointmentStatus.RescheduleProposed;
 
             await _context.SaveChangesAsync();

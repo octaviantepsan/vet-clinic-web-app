@@ -2,22 +2,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* "Trust & Care" Color Palette */
-    --primary-color: #20c997;       /* Medical Teal (Soft Green) */
-    --primary-hover: #1aa179;       /* Darker Teal for hover */
-    --secondary-color: #6c757d;     /* Soft Gray */
-    --accent-color: #ffc107;        /* Warm Yellow for alerts/badges */
-    --dark-text: #2c3e50;           /* Dark Blue-Gray (easier on eyes than pure black) */
-    --light-bg: #f8f9fa;            /* Very light gray background */
-    --card-shadow: 0 10px 20px rgba(0,0,0,0.05); /* Soft, expensive-looking shadow */
+    --primary-color: #20c997;
+    --primary-hover: #1aa179;
+    --secondary-color: #6c757d;
+    --accent-color: #ffc107;
+    --dark-text: #2c3e50;
+    --light-bg: #f8f9fa;
+    --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
     --border-radius: 12px;
 }
 
-/* 1. GLOBAL TYPOGRAPHY */
 body {
     font-family: 'Poppins', sans-serif;
     color: var(--dark-text);
-    background-color: #f9f7f5; /* Slight tint, not stark white */
+    background-color: #f9f7f5;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -25,11 +23,10 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--dark-text);
 }
 
-/* 2. OVERRIDING BOOTSTRAP BUTTONS */
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
-    border-radius: 50px; /* Pill shape buttons are friendlier */
+    border-radius: 50px;
     padding: 8px 24px;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -38,7 +35,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-primary:hover {
     background-color: var(--primary-hover);
     border-color: var(--primary-hover);
-    transform: translateY(-2px); /* Subtle lift effect */
+    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
 }
 
@@ -53,9 +50,8 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--primary-color);
 }
 
-/* 3. MODERN CARDS */
 .card {
-    border: none; /* Remove default ugly border */
+    border: none; 
     border-radius: var(--border-radius);
     box-shadow: var(--card-shadow);
     transition: transform 0.3s ease;
@@ -64,7 +60,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Cards float up slightly on hover */
+    transform: translateY(-5px);
 }
 
 .card-header {
@@ -74,7 +70,6 @@ h1, h2, h3, h4, h5, h6 {
     padding: 1.5rem;
 }
 
-/* 4. NAVBAR POLISH */
 .navbar {
     background-color: white !important;
     box-shadow: 0 2px 15px rgba(0,0,0,0.04);
@@ -97,7 +92,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color) !important;
 }
 
-/* 5. TABLE STYLING */
 .table thead th {
     background-color: var(--light-bg);
     border: none;
@@ -112,7 +106,6 @@ h1, h2, h3, h4, h5, h6 {
     vertical-align: middle;
 }
 
-/* 6. UTILITIES */
 .text-primary {
     color: var(--primary-color) !important;
 }
@@ -121,11 +114,10 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--primary-color) !important;
 }
 
-/* Fix for the sticky footer pushing content */
 html {
     position: relative;
     min-height: 100%;
 }
 body {
-    margin-bottom: 60px; /* Height of footer */
+    margin-bottom: 60px;
 }

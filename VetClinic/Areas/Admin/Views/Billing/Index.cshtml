@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Admin - Financial Records";
-    // FIX: Restore Navbar
     Layout = "~/Views/Shared/_Layout.cshtml";
     
     var totalRevenue = Model.Where(b => b.IsPaid).Sum(b => b.TotalAmount);

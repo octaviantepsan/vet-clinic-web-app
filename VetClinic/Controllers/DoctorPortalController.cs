@@ -7,7 +7,7 @@ using VetClinic.Models;
 
 namespace VetClinic.Controllers
 {
-    [Authorize(Roles = "Doctor")] // STRICTLY for Doctors
+    [Authorize(Roles = "Doctor")]
     public class DoctorPortalController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,10 +21,8 @@ namespace VetClinic.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // 1. Get the Logged-in User ID
             var userId = _userManager.GetUserId(User);
 
-            // 2. Find the Doctor profile linked to this User
             var doctor = await _context.Doctors
                 .FirstOrDefaultAsync(d => d.ApplicationUserId == userId);
 
@@ -33,12 +31,10 @@ namespace VetClinic.Controllers
                 return NotFound("Doctor profile not found.");
             }
 
-            // 3. Get appointments assigned to THIS doctor
             var appointments = await _context.Appointments
                 .Include(a => a.Pet)
-                    .ThenInclude(p => p!.Owner) // To show Client Name
+                    .ThenInclude(p => p!.Owner)
                 .Where(a => a.DoctorId == doctor.Id)
-                // Filter: Only show Today and Future (ignore history)
                 .Where(a => a.DateTime >= DateTime.Today)
                 .OrderBy(a => a.DateTime)
                 .ToListAsync();
@@ -46,7 +42,6 @@ namespace VetClinic.Controllers
             return View(appointments);
         }
 
-        // GET: Open the Medical Record form
         [HttpGet]
         public async Task<IActionResult> CreateConsultation(int appointmentId)
         {
@@ -57,26 +52,21 @@ namespace VetClinic.Controllers
 
             if (appointment == null) return NotFound();
 
-            // Pass the appointment info to the view so the doctor knows who they are treating
             ViewBag.Appointment = appointment;
 
-            // Create a blank consultation linked to this appointment
             var model = new Consultation { AppointmentId = appointmentId };
             return View(model);
         }
 
-        // POST: Save and Generate Bill
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateConsultation(Consultation consultation)
         {
             if (ModelState.IsValid)
             {
-                // 1. Save Consultation
                 _context.Consultations.Add(consultation);
                 await _context.SaveChangesAsync();
 
-                // 2. Automatically Create the Bill
                 var bill = new Bill
                 {
                     ConsultationId = consultation.Id,
@@ -85,7 +75,6 @@ namespace VetClinic.Controllers
                 };
                 _context.Bills.Add(bill);
 
-                // 3. Mark Appointment as "Completed" (Status 3)
                 var appointment = await _context.Appointments.FindAsync(consultation.AppointmentId);
                 if (appointment != null)
                 {
@@ -94,7 +83,7 @@ namespace VetClinic.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index)); // Back to Schedule
+                return RedirectToAction(nameof(Index));
             }
             return View(consultation);
         }

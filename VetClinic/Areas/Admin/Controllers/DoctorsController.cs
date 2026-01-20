@@ -41,7 +41,6 @@ namespace VetClinic.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string firstName, string lastName, string email, string password, string specialization, string bio)
         {
-            // 1. Create the Login Account
             var user = new ApplicationUser
             {
                 UserName = email,
@@ -56,16 +55,13 @@ namespace VetClinic.Areas.Admin.Controllers
 
             if (result.Succeeded)
             {
-                // 2. Assign Role
                 await _userManager.AddToRoleAsync(user, "Doctor");
 
-                // 3. Create Doctor Profile
                 var doctor = new Doctor
                 {
                     ApplicationUserId = user.Id,
                     Specialization = specialization,
                     Bio = bio
-                    // REMOVED: IsAvailable = true (caused the error)
                 };
 
                 _context.Add(doctor);
@@ -83,7 +79,7 @@ namespace VetClinic.Areas.Admin.Controllers
             return View();
         }
         
-        // GET: Admin/Doctors/Edit/5
+        // GET: Admin/Doctors/Edit
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -94,7 +90,7 @@ namespace VetClinic.Areas.Admin.Controllers
             return View(doctor);
         }
 
-        // POST: Admin/Doctors/Edit/5
+        // POST: Admin/Doctors/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Doctor doctor, string firstName, string lastName)
@@ -109,12 +105,9 @@ namespace VetClinic.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // Update Doctor Info
                 existingDoctor.Specialization = doctor.Specialization;
                 existingDoctor.Bio = doctor.Bio;
-                // REMOVED: existingDoctor.IsAvailable = doctor.IsAvailable; (caused the error)
 
-                // Update User Info
                 if (existingDoctor.ApplicationUser != null)
                 {
                     existingDoctor.ApplicationUser.FirstName = firstName;

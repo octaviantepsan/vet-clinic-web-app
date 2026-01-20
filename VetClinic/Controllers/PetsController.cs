@@ -118,33 +118,28 @@ namespace VetClinic.Controllers
         {
             if (id != pet.Id) return NotFound();
 
-            // 1. Get the original pet to preserve OwnerId and ImageUrl if needed
             var originalPet = await _context.Pets.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
             if (originalPet == null) return NotFound();
 
-            // 2. Force the OwnerId to remain the same (Security)
             pet.OwnerId = originalPet.OwnerId;
 
-            // 3. Logic: If they didn't upload a file, keep the old URL
             if (pet.ImageFile == null)
             {
                 pet.ImageUrl = originalPet.ImageUrl;
             }
 
-            // 4. Clear Validation for fields the form doesn't send
             ModelState.Remove("Owner");
             ModelState.Remove("OwnerId");
-            ModelState.Remove("Appointments"); // <--- Add this to prevent validation errors on history
+            ModelState.Remove("Appointments");
 
             if (ModelState.IsValid)
             {
-                // 5. Handle File Upload
+
                 if (pet.ImageFile != null && pet.ImageFile.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(pet.ImageFile.FileName);
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/pets", fileName);
 
-                    // Ensure folder exists
                     Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -168,11 +163,10 @@ namespace VetClinic.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // If we get here, something failed. The View will show the error summary now.
             return View(pet);
         }
 
-        // GET: Pets/Delete/5
+        // GET: Pets/Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -186,24 +180,21 @@ namespace VetClinic.Controllers
             return View(pet);
         }
 
-        // POST: Pets/Delete/5
+        // POST: Pets/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // 1. Find the pet
             var pet = await _context.Pets.FindAsync(id);
 
             if (pet != null)
             {
-                // 2. SECURITY CHECK: Is this YOUR pet?
                 var userId = _userManager.GetUserId(User);
                 if (pet.OwnerId != userId)
                 {
-                    return Forbid(); // Or NotFound()
+                    return Forbid();
                 }
 
-                // 3. IMAGE CLEANUP: Delete the actual file from wwwroot
                 if (!string.IsNullOrEmpty(pet.ImageUrl))
                 {
                     var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", pet.ImageUrl.TrimStart('/'));
@@ -213,9 +204,6 @@ namespace VetClinic.Controllers
                     }
                 }
 
-                // 4. Database Delete
-                // Note: EF Core usually handles deleting the linked Appointments automatically (Cascade Delete),
-                // but if you get an error here, it means we need to manually delete appointments first.
                 _context.Pets.Remove(pet);
                 await _context.SaveChangesAsync();
             }

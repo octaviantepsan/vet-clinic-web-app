@@ -13,7 +13,6 @@ namespace VetClinic.Models
         [StringLength(100)]
         public string LastName { get; set; } = string.Empty;
 
-        // Preferences
         public bool IsDarkMode { get; set; } = false;
         public string Language { get; set; } = "en";
 

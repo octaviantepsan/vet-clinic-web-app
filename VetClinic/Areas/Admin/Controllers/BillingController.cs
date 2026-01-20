@@ -18,9 +18,8 @@ namespace VetClinic.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var bills = await _context.Bills
-                // Step-by-step Include to avoid warnings
                 .Include(b => b.Consultation)
-                    .ThenInclude(c => c!.Appointment) // Use ! to suppress null warning here
+                    .ThenInclude(c => c!.Appointment)
                         .ThenInclude(a => a!.Pet)
                             .ThenInclude(p => p!.Owner)
                 .OrderByDescending(b => b.Id)
@@ -49,7 +48,6 @@ namespace VetClinic.Areas.Admin.Controllers
                     .ThenInclude(c => c!.Appointment)
                         .ThenInclude(a => a!.Pet)
                             .ThenInclude(p => p!.Owner)
-                // Separate chain for Doctor to be safe
                 .Include(b => b.Consultation)
                     .ThenInclude(c => c!.Appointment)
                         .ThenInclude(a => a!.Doctor)

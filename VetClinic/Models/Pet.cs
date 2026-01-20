@@ -10,13 +10,13 @@ namespace VetClinic.Models
 
         [Required]
         [StringLength(50)]
-        public required string Name { get; set; } // Fixed with 'required'
+        public required string Name { get; set; }
 
         [Required]
         [StringLength(50)]
-        public required string Species { get; set; } // Fixed with 'required'
+        public required string Species { get; set; }
 
-        public string? Breed { get; set; } // Fixed: Made optional (Nullable)
+        public string? Breed { get; set; }
 
         public int Age { get; set; }
         public double Weight { get; set; }
@@ -24,12 +24,11 @@ namespace VetClinic.Models
         public string? ImageUrl { get; set; }
         [NotMapped]
         public IFormFile? ImageFile { get; set; }
-        // Link to Owner (Client)
         [Required]
-        public required string OwnerId { get; set; } // Fixed with 'required'
+        public required string OwnerId { get; set; }
 
         [ForeignKey("OwnerId")]
-        public ApplicationUser? Owner { get; set; } // Optional: EF Core handles this link automatically
+        public ApplicationUser? Owner { get; set; }
 
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }

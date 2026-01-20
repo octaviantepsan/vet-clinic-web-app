@@ -23,7 +23,6 @@ namespace VetClinic.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // If user is not logged in, show the public generic welcome page
             if (!User.Identity?.IsAuthenticated ?? true)
             {
                 return View("PublicWelcome"); 
@@ -31,16 +30,13 @@ namespace VetClinic.Controllers
 
             var userId = _userManager.GetUserId(User);
 
-            // 1. Calculate Total Unpaid Bills
             var unpaidTotal = await _context.Bills
                 .Where(b => b.Consultation!.Appointment!.Pet!.OwnerId == userId && !b.IsPaid)
                 .SumAsync(b => b.TotalAmount);
 
-            // 2. Count Pets
             var petCount = await _context.Pets
                 .CountAsync(p => p.OwnerId == userId);
 
-            // 3. Find Next Upcoming Appointment
             var nextAppt = await _context.Appointments
                 .Include(a => a.Pet)
                 .Include(a => a.Doctor)
@@ -49,11 +45,7 @@ namespace VetClinic.Controllers
                 .OrderBy(a => a.DateTime)
                 .FirstOrDefaultAsync();
 
-            // 4. Get Recent History (Past appointments)
-            // 4. Get Recent History
-            // FIX: We removed 'a.DateTime < DateTime.Now'
-            // If the doctor finished the consultation, it IS history, even if the appointment was scheduled for later today.
-            var history = await _context.Appointments
+                var history = await _context.Appointments
                 .Include(a => a.Pet)
                 .Include(a => a.Consultation)
                 .Where(a => a.Pet!.OwnerId == userId && a.Consultation != null) 
